@@ -14,13 +14,15 @@ void reset(sf::Sprite& cookieSprite)
 cookieSprite.setPosition(rand() % 750, rand() % 550);
 }
 
-void handleCollision(sf::Sprite& charizardSprite, sf::Sprite& cookieSprite, int& eaten)
+void handleWallCollision(sf::Sprite *tileArr, sf::Sprite& PacmanSprite)
 {
-if (overlap(charizardSprite, cookieSprite))
+if (overlap(tileArr, PacmanSprite))
 {
-eaten++;
-reset(cookieSprite);
-charizardSprite.scale(1.1, 1.1);
+	
+
+//eaten++;
+//reset(cookieSprite);
+//charizardSprite.scale(1.1, 1.1);
 }
 }
 */
@@ -34,16 +36,24 @@ void handleEvent(sf::RenderWindow& window)
 	}
 }
 /* //Pacman
-void update(sf::Sprite& charizardSprite, sf::Sprite& cookieSprite, int& eaten)
+void update(sf::Sprite& PacmanSprite, bool arr[][COL])
 {
-if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
-charizardSprite.move(0, -5);
-if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
-charizardSprite.move(0, 5);
-if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
-charizardSprite.move(-5, 0);
-if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
-charizardSprite.move(5, 0);
+if (event.key.code == sf::Keyboard::Left) //keeps it moving even though key is not pressed
+{
+	PacmanSprite.move(0.05, 0);
+}
+else if ((event.key.code == sf::Keyboard::Right))
+{
+	PacmanSprite.move(0.05, 0);
+}
+else if ((event.key.code == sf::Keyboard::Up)
+{
+	PacmanSprite.move(0, -0.05);
+}
+else if ((event.key.code == sf::Keyboard::Down)
+{
+	PacmanSprite.move(0, 0.05);
+}
 
 }
 */
