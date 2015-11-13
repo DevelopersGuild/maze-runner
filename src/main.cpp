@@ -23,7 +23,7 @@ bool handleWallCollision(sf::Sprite *tileArr, sf::Sprite pacmanSprite, int count
 		if (overlap(tileArr[i], pacmanSprite))
 			return true; // there is collision
 	}
-		return false;
+	return false;
 }
 
 void handleEvent(sf::RenderWindow& window, sf::Event &event)
@@ -105,7 +105,25 @@ void drawWall(sf::RenderWindow& window, bool arr[][COL], sf::Sprite *tileArr, sf
 		}
 	}
 }
+void drawcandy(sf::RenderWindow& window, bool arr[][COL], sf::Sprite *candyArr, sf::Texture candyTexture)
+{
+	int i = 0;
 
+	for (int r = 0; r < ROW; r++)
+	{
+		for (int c = 1; c < COL; c++)
+		{
+			if (arr[r][c] == true)
+			{
+				candyArr[i] = sf::Sprite(candyTexture);
+				candyArr[i].setPosition(c * 64 + 32, r * 64 + 32);
+				candyArr[i].setOrigin(10, 10);
+				window.draw(candyArr[i]);
+				i++;
+			}
+		}
+	}
+}
 int main()
 {
 	srand(time(NULL));
@@ -119,7 +137,10 @@ int main()
 	pacmanTexture.loadFromFile(resourcePath() + "assets/pacman.png");
 	sf::Sprite pacmanSprite(pacmanTexture);
 	pacmanSprite.setOrigin(32, 32);
-	pacmanSprite.setPosition(0 + 32+ 16, 4 * 64 + 32+16);
+	pacmanSprite.setPosition(0 + 32 + 16, 4 * 64 + 32 + 16);
+
+	sf::Texture candyTexture;
+	candyTexture.loadFromFile(resourcePath() + "assets/candy.png");
 
 
 	//this would be better if we can call the inputfile.
@@ -153,9 +174,23 @@ int main()
 				wall[r][c] = false; // blank
 		}
 	}
-
+	int numcandy = 0;
+	bool candy[9][11];
+	for (int r = 0; r < ROW; r++)
+	{
+		for (int c = 0; c < COL; c++)
+		{
+			if (map[r][c] == 0)
+			{
+				candy[r][c] = true; // there is a candy
+				numcandy++;
+			}
+			if (map[r][c] == 1)
+				candy[r][c] = false; // blank
+		}
+	}
 	sf::Sprite *tileArray = new sf::Sprite[counter];
-
+	sf::Sprite*candyArray = new sf::Sprite[numcandy];
 	while (window.isOpen())
 	{
 		window.clear();
@@ -164,8 +199,9 @@ int main()
 		handleEvent(window, event);
 
 		update(tileArray, pacmanSprite, event, counter);
-		
+
 		drawWall(window, wall, tileArray, wallTexture);
+		drawcandy(window, candy, candyArray, candyTexture);
 		draw(window, pacmanSprite, counter);
 
 	}
