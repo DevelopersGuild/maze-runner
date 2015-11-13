@@ -13,19 +13,19 @@ void reset(sf::Sprite& cookieSprite)
 {
 cookieSprite.setPosition(rand() % 750, rand() % 550);
 }
-
-void handleWallCollision(sf::Sprite *tileArr, sf::Sprite& PacmanSprite)
-{
-if (overlap(*tileArr, PacmanSprite))
-{
-
-
-//eaten++;
-//reset(cookieSprite);
-//charizardSprite.scale(1.1, 1.1);
-}
-}
 */
+
+
+bool handleWallCollision(sf::Sprite *tileArr, sf::Sprite pacmanSprite, int counter)
+{
+	for (int i = 0; i < counter; i++)
+	{
+		if (overlap(tileArr[i], pacmanSprite))
+			return true; // there is collision
+	}
+		return false;
+}
+
 void handleEvent(sf::RenderWindow& window, sf::Event &event)
 {
 	while (window.pollEvent(event))
@@ -37,34 +37,52 @@ void handleEvent(sf::RenderWindow& window, sf::Event &event)
 
 
 //Pacman
-void update(sf::Sprite& PacmanSprite, sf::Event event)
+void update(sf::Sprite* tileArr, sf::Sprite& PacmanSprite, sf::Event event, int counter)
 {
+
 	if (event.key.code == sf::Keyboard::Left) //keeps it moving even though key is not pressed
 	{
-		PacmanSprite.move(-1, 0);
+		if (handleWallCollision(tileArr, PacmanSprite, counter))
+		{
+			PacmanSprite.move(0, 0);
+		}
+		else
+			PacmanSprite.move(-1, 0);
 	}
 	else if ((event.key.code == sf::Keyboard::Right))
 	{
-		PacmanSprite.move(1, 0);
+		if (handleWallCollision(tileArr, PacmanSprite, counter))
+		{
+			PacmanSprite.move(0, 0);
+
+		}
+		else
+			PacmanSprite.move(1, 0);
 	}
 	else if ((event.key.code == sf::Keyboard::Up))
 	{
-		PacmanSprite.move(0, -1);
+		if (handleWallCollision(tileArr, PacmanSprite, counter))
+		{
+			PacmanSprite.move(0, 0);
+		}
+		else
+			PacmanSprite.move(0, -1);
 	}
 	else if ((event.key.code == sf::Keyboard::Down))
 	{
-		PacmanSprite.move(0, 1);
-	}
+		if (handleWallCollision(tileArr, PacmanSprite, counter))
+		{
+			PacmanSprite.move(0, 0);
 
+		}
+		else
+			PacmanSprite.move(0, 1);
+	}
 }
 
 void draw(sf::RenderWindow& window, sf::Sprite pacmanSprite, int counter)
 {
 	window.draw(pacmanSprite);
-	//for (int i = 0; i < counter; i++)
-	//{
-	//	window.draw(tileArr[i]);
-	//}
 	window.display();
 }
 
@@ -101,9 +119,8 @@ int main()
 	pacmanTexture.loadFromFile(resourcePath() + "assets/pacman.png");
 	sf::Sprite pacmanSprite(pacmanTexture);
 	pacmanSprite.setOrigin(32, 32);
-	pacmanSprite.setPosition(0 + 32, 4 * 64 + 32);
+	pacmanSprite.setPosition(0 + 32+ 16, 4 * 64 + 32+16);
 
-	sf::Sprite *tileArray = NULL;
 
 	//this would be better if we can call the inputfile.
 	// map array beta
@@ -137,7 +154,7 @@ int main()
 		}
 	}
 
-	tileArray = new sf::Sprite[counter];
+	sf::Sprite *tileArray = new sf::Sprite[counter];
 
 	while (window.isOpen())
 	{
@@ -146,7 +163,8 @@ int main()
 		sf::Event event;
 		handleEvent(window, event);
 
-		update(pacmanSprite, event);
+		update(tileArray, pacmanSprite, event, counter);
+		
 		drawWall(window, wall, tileArray, wallTexture);
 		draw(window, pacmanSprite, counter);
 
