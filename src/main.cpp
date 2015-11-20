@@ -16,7 +16,7 @@ cookieSprite.setPosition(rand() % 750, rand() % 550);
 */
 
 
-bool handleWallCollision(sf::Sprite *tileArr, sf::Sprite pacmanSprite, int counter)
+bool handleWallCollision(sf::Sprite *tileArr,sf::Sprite pacmanSprite, int counter)
 {
 	for (int i = 0; i < counter; i++)
 	{
@@ -26,6 +26,18 @@ bool handleWallCollision(sf::Sprite *tileArr, sf::Sprite pacmanSprite, int count
 	return false;
 }
 
+bool handleCandyCollision(sf::Sprite *candyArr, sf::Sprite pacmanSprite, int counter, int& point)
+{
+	for (int i = 0; i < counter; i++)
+	{
+		if (overlap(candyArr[i], pacmanSprite))
+		{
+			return true;
+			point++;
+		}
+	}
+	return false;
+}
 void handleEvent(sf::RenderWindow& window, sf::Event &event)
 {
 	while (window.pollEvent(event))
@@ -37,14 +49,20 @@ void handleEvent(sf::RenderWindow& window, sf::Event &event)
 
 
 //Pacman
-void update(sf::Sprite* tileArr, sf::Sprite& PacmanSprite, sf::Event event, int counter)
+void update(sf::Sprite* candyArr, sf::Sprite* tileArr, sf::Sprite& PacmanSprite, sf::Event event, int counter)
 {
-
+	int point = 0;
+	sf::Vector2f currPos = PacmanSprite.getPosition();
 	if (event.key.code == sf::Keyboard::Left) //keeps it moving even though key is not pressed
 	{
 		if (handleWallCollision(tileArr, PacmanSprite, counter))
 		{
 			PacmanSprite.move(0, 0);
+		}
+		else if (handleCandyCollision(candyArr, PacmanSprite, counter, point))
+		{
+			point++;
+			PacmanSprite.move(-1, 0);
 		}
 		else
 			PacmanSprite.move(-1, 0);
@@ -54,7 +72,11 @@ void update(sf::Sprite* tileArr, sf::Sprite& PacmanSprite, sf::Event event, int 
 		if (handleWallCollision(tileArr, PacmanSprite, counter))
 		{
 			PacmanSprite.move(0, 0);
-
+		}
+		else if (handleCandyCollision(candyArr, PacmanSprite, counter, point))
+		{
+			point++;
+			PacmanSprite.move(1, 0);
 		}
 		else
 			PacmanSprite.move(1, 0);
@@ -64,6 +86,11 @@ void update(sf::Sprite* tileArr, sf::Sprite& PacmanSprite, sf::Event event, int 
 		if (handleWallCollision(tileArr, PacmanSprite, counter))
 		{
 			PacmanSprite.move(0, 0);
+		}
+		else if (handleCandyCollision(candyArr, PacmanSprite, counter, point))
+		{
+			point++;
+			PacmanSprite.move(0, -1);
 		}
 		else
 			PacmanSprite.move(0, -1);
@@ -75,9 +102,24 @@ void update(sf::Sprite* tileArr, sf::Sprite& PacmanSprite, sf::Event event, int 
 			PacmanSprite.move(0, 0);
 
 		}
+		else if (handleCandyCollision(candyArr, PacmanSprite, counter, point))
+		{
+			point++;
+			PacmanSprite.move(0, 1);
+		}
 		else
 			PacmanSprite.move(0, 1);
 	}
+	// if pacman hits a wall, set position back to currPos
+	for (int i = 0; i < counter; i++)
+	{ 
+		if (overlap(PacmanSprite, tileArr[i]))
+		{
+			PacmanSprite.setPosition(currPos);
+		}
+
+	}
+	
 }
 
 void draw(sf::RenderWindow& window, sf::Sprite pacmanSprite, int counter)
@@ -124,6 +166,8 @@ void drawcandy(sf::RenderWindow& window, bool arr[][COL], sf::Sprite *candyArr, 
 		}
 	}
 }
+
+
 int main()
 {
 	srand(time(NULL));
@@ -198,7 +242,7 @@ int main()
 		sf::Event event;
 		handleEvent(window, event);
 
-		update(tileArray, pacmanSprite, event, counter);
+		update(candyArray, tileArray, pacmanSprite, event, counter);
 
 		drawWall(window, wall, tileArray, wallTexture);
 		drawcandy(window, candy, candyArray, candyTexture);
