@@ -5,6 +5,8 @@
 #include <cstdlib>
 #include <ctime>
 #include <iostream>
+#include <string>
+#include <sstream>
 
 using namespace std;
 const int ROW = 9;
@@ -63,7 +65,7 @@ void drawCandy(sf::RenderWindow& window, bool arr[][COL], sf::Sprite *candyArr, 
 	}
 }
 //this function should find the row and col for the overlapped candy sprite.
-void findCandy(sf::Vector2f candyPosition, sf::Sprite *candyArr, bool arr[][COL], int &numcandy)
+void findCandy(sf::Vector2f candyPosition, sf::Sprite *candyArr, bool arr[][COL], int &numcandy, int &score)
 {
 	int col = candyPosition.x;
 	int row = candyPosition.y;
@@ -75,6 +77,7 @@ void findCandy(sf::Vector2f candyPosition, sf::Sprite *candyArr, bool arr[][COL]
 	{
 		arr[row][col] = false;
 		numcandy--;
+		score++;
 	}
 
 
@@ -143,7 +146,7 @@ int main()
 {
 	srand(time(NULL));
 
-	sf::RenderWindow window(sf::VideoMode(704, 576), "SFML Works!");
+	sf::RenderWindow window(sf::VideoMode(704, 630), "SFML Works!");
 	window.setVerticalSyncEnabled(true);
 
 	sf::Texture wallTexture;
@@ -217,13 +220,26 @@ int main()
 		cout << "CANNOT OPEN THE FILE." << endl;
 	}
 	sf::String sentence;
-	sf::Text text(sentence, font, 60);
-	text.setString("VICTORY");
-	text.setColor(sf::Color::White);
-	text.setOrigin(160, 32);
-	text.setPosition(350, 300);
+	sf::Text victoryText(sentence, font, 66);
+	victoryText.setString("VICTORY");
+	victoryText.setColor(sf::Color::White);
+	victoryText.setOrigin(160, 32);
+	victoryText.setPosition(350, 300);
 
-	while (window.isOpen())// && numcandy != 0)
+	sf::String score;
+	sf::Text scoreText(score, font, 45);
+	scoreText.setColor(sf::Color::White);
+	//scoreText.setOrigin()
+	scoreText.setPosition(620, 580);
+
+	sf::String words;
+	sf::Text info(words, font, 40);
+	info.setString("SCORE: ");
+	info.setColor(sf::Color::White);
+	info.setPosition(430, 580);
+
+	int points = 0;
+	while (window.isOpen())
 	{
 		window.clear();
 
@@ -231,15 +247,24 @@ int main()
 		handleEvent(window, event);
 		overlapCandy = update(candyArray, tileArray, pacmanSprite, event, numtile, numcandy, *candy);
 	
-		findCandy(overlapCandy, candyArray, candy, numcandy);
+		findCandy(overlapCandy, candyArray, candy, numcandy, points);
 		cout << numcandy << endl;
 
 		drawWall(window, wall, tileArray, wallTexture);
 		drawCandy(window, candy, candyArray, candyTexture);
-		
+		stringstream convertToString;
+		convertToString << points;
+
+		scoreText.setString(convertToString.str());
+		window.draw(scoreText);
+		window.draw(info);
 		if (numcandy == 0)
 		{
-			window.draw(text);
+			window.clear();
+			pacmanSprite.setPosition(405, 310);
+			window.draw(victoryText);
+			window.draw(scoreText);
+			window.draw(info);
 		}
 		draw(window, pacmanSprite, numtile);
 	}
